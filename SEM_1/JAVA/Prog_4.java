@@ -8,7 +8,7 @@ class BankAccount{
 	
 	void display() {
 		System.out.println("Account : "+this.accno);
-		System.out.println("BAlance : "+this.balance);
+		System.out.println("Balance : "+this.balance);
 	}
 	
 	void deposit(int money) {
