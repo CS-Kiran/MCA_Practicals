@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infix to Postfix Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        input, button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            font-size: 24px;
+            text-align: right;
+            background-color: #f9f9f9;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .action-buttons button {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <input id="infix" type="text" placeholder="Enter infix expression">
+        <div class="action-buttons">
+            <button onclick="convertToPostfix()">Convert to Postfix</button>
+            <button onclick="evaluatePostfix()">Evaluate Postfix</button>
+        </div>
+        <input id="output" type="text" disabled placeholder="Result will be shown here">
+    </div>
+
+    <script>
+        let infix = "";
+        let postfix = "";
+
+        // Update the infix expression input field
+        function updateOutput() {
+            document.getElementById('infix').value = infix;
+        }
+
+        // Convert infix to postfix using a stack
+        function convertToPostfix() {
+            infix = document.getElementById('infix').value;
+            let stack = [];
+            postfix = "";
+            let i = 0;
+
+            while (i < infix.length) {
+                let char = infix[i];
+
+                // If the character is a digit or decimal point
+                if (char >= '0' && char <= '9' || char === '.') {
+                    postfix += char;
+                    while (i + 1 < infix.length && (infix[i + 1] >= '0' && infix[i + 1] <= '9' || infix[i + 1] === '.')) {
+                        i++;
+                        postfix += infix[i];
+                    }
+                    postfix += " ";
+                }
+                // If the character is '('
+                else if (char === '(') {
+                    stack.push(char);
+                }
+                // If the character is ')'
+                else if (char === ')') {
+                    while (stack.length && stack[stack.length - 1] !== '(') {
+                        postfix += stack.pop() + " ";
+                    }
+                    stack.pop(); // pop '('
+                }
+                // If the character is an operator
+                else if (char === '+' || char === '-' || char === '*' || char === '/') {
+                    while (stack.length && precedence(stack[stack.length - 1]) >= precedence(char)) {
+                        postfix += stack.pop() + " ";
+                    }
+                    stack.push(char);
+                }
+                i++;
+            }
+
+            // Pop remaining operators from the stack
+            while (stack.length) {
+                postfix += stack.pop() + " ";
+            }
+
+            // Display postfix expression
+            document.getElementById('output').value = postfix.trim();
+        }
+
+        // Get the precedence of operators
+        function precedence(op) {
+            if (op === '+' || op === '-') return 1;
+            if (op === '*' || op === '/') return 2;
+            return 0;
+        }
+
+        // Evaluate the postfix expression
+        function evaluatePostfix() {
+            document.getElementById('output').value = ''; // Clear previous result
+            let stack = [];
+            let tokens = postfix.split(' ');
+
+            for (let token of tokens) {
+                if (token === "") continue;
+                if (!isNaN(token)) {
+                    stack.push(parseFloat(token));
+                } else {
+                    let b = stack.pop();
+                    let a = stack.pop();
+                    let result;
+                    switch (token) {
+                        case '+': result = a + b; break;
+                        case '-': result = a - b; break;
+                        case '*': result = a * b; break;
+                        case '/': result = a / b; break;
+                    }
+                    stack.push(result);
+                }
+            }
+
+            // Show the result
+            document.getElementById('output').value = stack.pop();
+        }
+    </script>
+</body>
+</html>

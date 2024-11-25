@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Booking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+	#customerType{
+		margin-bottom:10px;
+	}
+        button {
+            width: 48%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .queue {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 5px;
+        }
+        .queue ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .queue li {
+            padding: 5px;
+            margin: 5px 0;
+            background-color: #fff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ticket Booking</h1>
+    
+    <input type="text" id="customerName" placeholder="Enter Customer Name" />
+    <select id="customerType">
+        <option value="VIP">VIP</option>
+        <option value="Regular">Regular</option>
+    </select>
+    
+    <div class="actions">
+        <button onclick="bookTicket()">Book Ticket</button>
+        <button onclick="cancelTicket()">Cancel Ticket</button>
+    </div>
+    
+    <div class="queue">
+        <h3>Queue:</h3>
+        <ul id="queueList"></ul>
+    </div>
+</div>
+
+<script>
+// Priority Queue: VIP customers have higher priority
+class PriorityQueue {
+    constructor() {
+        this.queue = [];
+    }
+
+    // Add a customer to the queue
+    enqueue(customer) {
+        if (customer.type === 'VIP') {
+            this.queue.unshift(customer); // VIP customers are added at the front
+        } else {
+            this.queue.push(customer); // Regular customers are added at the end
+        }
+    }
+
+    // Remove a customer from the queue by name
+    dequeueByName(name) {
+        const index = this.queue.findIndex(customer => customer.name === name);
+        if (index !== -1) {
+            const [removedCustomer] = this.queue.splice(index, 1); // Remove the customer
+            return removedCustomer;
+        }
+        return null; // Customer not found
+    }
+
+    // Get the size of the queue
+    size() {
+        return this.queue.length;
+    }
+
+    // Display the queue
+    displayQueue() {
+        const list = document.getElementById('queueList');
+        list.innerHTML = '';
+        this.queue.forEach((customer, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${customer.name} (${customer.type})`;
+            list.appendChild(li);
+        });
+    }
+}
+
+// Create a global priority queue instance
+const queue = new PriorityQueue();
+
+// Function to book a ticket
+function bookTicket() {
+    const customerName = document.getElementById('customerName').value.trim();
+    const customerType = document.getElementById('customerType').value;
+
+    if (!customerName) {
+        alert("Please enter a customer name.");
+        return;
+    }
+
+    const customer = { name: customerName, type: customerType };
+    queue.enqueue(customer);
+    queue.displayQueue();
+
+    document.getElementById('customerName').value = ''; // Clear input
+}
+
+// Function to cancel a ticket
+function cancelTicket() {
+    const customerName = prompt("Enter the customer name to cancel their ticket:").trim();
+
+    if (!customerName) {
+        alert("Please enter a customer name to cancel the ticket.");
+        return;
+    }
+
+    const customer = queue.dequeueByName(customerName);
+    if (customer) {
+        alert(`${customer.name}'s ticket has been canceled.`);
+        queue.displayQueue();
+    } else {
+        alert("Customer not found in the queue.");
+    }
+}
+</script>
+
+</body>
+</html>
