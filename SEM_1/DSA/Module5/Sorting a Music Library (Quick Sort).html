@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Library - Quick Sort</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { padding: 10px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+  </style>
+</head>
+<body>
+
+  <h1>Sort Music Library</h1>
+
+  <label for="songs">Enter Songs (Format: Name,Artist,Duration):</label>
+  <input type="text" id="songs" placeholder="Song1,Artist1,3.5, Song2,Artist2,4.0" />
+  <button onclick="sortSongs()">Sort by Duration</button>
+
+  <h2>Sorted Songs</h2>
+  <table id="songsTable">
+    <thead>
+      <tr>
+        <th>Song</th>
+        <th>Artist</th>
+        <th>Duration (minutes)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function sortSongs() {
+      const input = document.getElementById('songs').value.split(',');
+      const songs = [];
+
+      for (let i = 0; i < input.length; i += 3) {
+        songs.push({
+          name: input[i].trim(),
+          artist: input[i + 1].trim(),
+          duration: parseFloat(input[i + 2].trim())
+        });
+      }
+
+      quickSort(songs, 0, songs.length - 1);
+      updateTable(songs);
+    }
+
+    function quickSort(arr, left, right) {
+      if (left < right) {
+        const pivotIndex = partition(arr, left, right);
+        quickSort(arr, left, pivotIndex - 1);
+        quickSort(arr, pivotIndex + 1, right);
+      }
+    }
+
+    function partition(arr, left, right) {
+      const pivot = arr[right].duration;
+      let i = left - 1;
+      for (let j = left; j < right; j++) {
+        if (arr[j].duration <= pivot) {
+          i++;
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+      [arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+      return i + 1;
+    }
+
+    function updateTable(songs) {
+      const tbody = document.getElementById('songsTable').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = '';
+      
+      songs.forEach(song => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = song.name;
+        row.insertCell(1).innerText = song.artist;
+        row.insertCell(2).innerText = song.duration;
+      });
+    }
+  </script>
+
+</body>
+</html>
